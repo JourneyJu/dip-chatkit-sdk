@@ -54,6 +54,7 @@ export class ChatKitDataAgent extends ChatKitBase<ChatKitDataAgentProps> {
   /**
    * 创建新的会话
    * 调用 Data Agent API 创建新的会话，返回会话 ID
+   * API 端点: POST /app/{agent_id}/conversation
    * 注意：该方法是一个无状态无副作用的函数，不允许修改 state
    * @returns 返回新创建的会话 ID
    */
@@ -61,17 +62,39 @@ export class ChatKitDataAgent extends ChatKitBase<ChatKitDataAgentProps> {
     try {
       console.log('正在创建 Data Agent 会话...');
 
-      // Data Agent 可能通过发送消息时自动创建会话
-      // 这里返回空字符串，让 API 自动创建会话
-      // 如果 Data Agent 有专门的创建会话接口，可以在这里调用
+      // 构造创建会话的请求体
+      const requestBody = {
+        agent_id: this.agentId,
+        agent_version: 'latest',
+      };
 
-      // 生成一个临时的会话 ID 用于标识本次会话
-      const conversationId = `da-conv-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const response = await fetch(
+        `${this.baseUrl}/app/${this.agentId}/conversation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.bearerToken,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
-      console.log('Data Agent 会话创建成功, conversationID:', conversationId);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`创建 Data Agent 会话失败: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      // 从响应中获取会话 ID
+      // 根据 ConversationResponse Schema，响应格式为 { id: string, ttl: string }
+      const conversationId = result.data?.id || result.id || '';
+
+      console.log('Data Agent 会话创建成功, conversationID:', conversationId, 'ttl:', result.data?.ttl || result.ttl);
       return conversationId;
     } catch (error) {
       console.error('创建 Data Agent 会话失败:', error);
+      // 返回空字符串，允许在没有会话 ID 的情况下继续（API 可能支持自动创建会话）
       return '';
     }
   }

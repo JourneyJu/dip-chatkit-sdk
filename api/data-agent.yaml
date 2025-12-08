@@ -1,6 +1,17 @@
 components:
   schemas:
+    ConversationResponse:
+      description: 会话创建响应
+      type: object
+      properties:
+        id:
+          description: 新会话ID
+          type: string
+        ttl:
+          description: 会话过期时间，单位秒
+          type: string
     AgentInfo:
+      type: object
       properties:
         agent_id:
           description: Agent ID
@@ -14,8 +25,8 @@ components:
         agent_version:
           description: Agent 版本
           type: string
-      type: object
     Answer:
+      type: object
       properties:
         ask:
           nullable: true
@@ -25,8 +36,8 @@ components:
           type: object
         text:
           type: string
-      type: object
     Arg:
+      type: object
       properties:
         name:
           description: 参数名称
@@ -37,8 +48,8 @@ components:
         value:
           description: 参数值
           type: string
-      type: object
     ChatResponse:
+      type: object
       properties:
         assistant_message_id:
           description: 助手消息ID
@@ -54,8 +65,8 @@ components:
         user_message_id:
           description: 用户消息ID
           type: string
-      type: object
     Content:
+      type: object
       properties:
         final_answer:
           $ref: '#/components/schemas/FinalAnswer'
@@ -69,8 +80,8 @@ components:
           type: array
         text:
           type: string
-      type: object
     FinalAnswer:
+      type: object
       description: 最终结果
       properties:
         answer:
@@ -87,8 +98,8 @@ components:
           type: array
         thinking:
           type: string
-      type: object
     Message:
+      type: object
       properties:
         agent_info:
           $ref: '#/components/schemas/AgentInfo'
@@ -115,8 +126,8 @@ components:
         status:
           description: 消息状态
           type: string
-      type: object
     MiddleAnswer:
+      type: object
       properties:
         doc_retrieval:
           description: 文档召回结果
@@ -134,8 +145,8 @@ components:
           items:
             $ref: '#/components/schemas/Progress'
           type: array
-      type: object
     Progress:
+      type: object
       properties:
         agent_name:
           description: 兼容旧版本字段，代理名称，对于LLM输出通常为"main"，对于工具调用为工具名称
@@ -171,14 +182,14 @@ components:
         think:
           description: 思考过程记录
           type: string
-      type: object
     RelatedQuestion:
+      type: object
       description: 相关查询
       properties:
         query:
           type: string
-      type: object
     SkillInfo:
+      type: object
       properties:
         args:
           items:
@@ -197,9 +208,9 @@ components:
             - AGENT
             - MCP
           type: string
-      type: object
     SkillsProcessItem:
       description: 技能处理结果
+      type: object
       properties:
         agent_name:
           type: string
@@ -223,8 +234,8 @@ components:
           type: string
         type:
           type: string
-      type: object
     TempFile:
+      type: object
       properties:
         id:
           type: string
@@ -232,7 +243,6 @@ components:
           type: string
         type:
           type: string
-      type: object
 info:
   title: Data Agent API
   version: 1.0.0
@@ -241,7 +251,40 @@ servers:
   - url: https://dip.aishu.cn/api/agent-app/v1
     description: 生产环境
 paths:
-  '/app/{agent_id}/chat/completion':
+  /app/{agent_id}/conversation:
+    post:
+      description: 创建会话
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agent_id:
+                  description: agent ID
+                  type: string
+                agent_version:
+                  description: agent 版本，不传则默认使用最新发布版本
+                  type: string
+                executor_version:
+                  description: 智能体执行服务 ID
+                  type: string
+              required:
+                - agent_id
+                - agent_version
+        required: true
+        example:
+          agent_id: 01KAZKS30H0X0D8Z8K24FMRJK6
+          agent_version: v1
+          executor_version: v2
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+          description: 创建会话成功
+  /app/{agent_id}/chat/completion:
     post:
       parameters:
         - description: 用户或应用账号的 Bearer token
@@ -280,6 +323,7 @@ paths:
               required:
                 - query
                 - agent_id
+                - conversation_id
                 - stream
               type: object
         required: true
