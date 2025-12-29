@@ -525,13 +525,21 @@ export class ChatKitDataAgent extends ChatKitBase<ChatKitDataAgentProps> {
       }
 
       // tool_calls[0] 是 SearchIntent（输入）
-      const searchIntent = toolCalls[0];
-      const query = searchIntent?.search_intent?.query ||
-                    searchIntent?.search_intent?.keywords || '';
+      const searchIntentObj = toolCalls[0];
+      console.log('searchIntent 对象:', JSON.stringify(searchIntentObj, null, 2));
+
+      // search_intent 是一个数组，取第一个元素
+      const searchIntentArray = searchIntentObj?.search_intent;
+      const searchIntent = Array.isArray(searchIntentArray) ? searchIntentArray[0] : searchIntentArray;
+
+      const query = searchIntent?.query || searchIntent?.keywords || '';
+      console.log('提取的 query:', query);
 
       // tool_calls[1] 是 SearchResult（输出）
-      const searchResult = toolCalls[1];
-      const searchResultArray = searchResult?.search_result;
+      const searchResultObj = toolCalls[1];
+      console.log('searchResult 对象:', JSON.stringify(searchResultObj, null, 2));
+
+      const searchResultArray = searchResultObj?.search_result;
 
       if (!searchResultArray || !Array.isArray(searchResultArray)) {
         console.log('search_result 不存在或不是数组:', searchResultArray);
@@ -545,6 +553,8 @@ export class ChatKitDataAgent extends ChatKitBase<ChatKitDataAgentProps> {
         media: item.media || '',
         title: item.title || '',
       }));
+
+      console.log('构造的 WebSearchQuery:', { input: query, resultsCount: results.length });
 
       return {
         input: query,
