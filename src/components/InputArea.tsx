@@ -22,6 +22,12 @@ interface InputAreaProps {
 
   /** 是否禁用输入 */
   disabled?: boolean;
+
+  /** 是否正在接收 AI 助手的流式响应 */
+  isStreaming?: boolean;
+
+  /** 停止当前流式响应的回调 */
+  onStop?: () => void;
 }
 
 /**
@@ -35,6 +41,8 @@ const InputArea: React.FC<InputAreaProps> = ({
   context,
   onRemoveContext,
   disabled = false,
+  isStreaming = false,
+  onStop,
 }) => {
   /**
    * 处理键盘事件
@@ -100,15 +108,33 @@ const InputArea: React.FC<InputAreaProps> = ({
             maxLength={4000}
           />
 
-          {/* 发送按钮 */}
-          <button
-            onClick={onSend}
-            disabled={disabled || !value.trim()}
-            className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
-            title={disabled ? '正在发送...' : '发送消息'}
-          >
-            <img src="/icons/send.svg" alt="发送" className="w-8 h-8" />
-          </button>
+          {/* 发送按钮 / 停止按钮 */}
+          {isStreaming ? (
+            // 停止按钮：在接收 AI 流式响应时显示
+            <button
+              onClick={onStop}
+              className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-600 rounded transition-colors"
+              title="停止响应"
+            >
+              <svg
+                className="w-4 h-4 text-white"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <rect x="6" y="6" width="12" height="12" />
+              </svg>
+            </button>
+          ) : (
+            // 发送按钮：正常状态下显示
+            <button
+              onClick={onSend}
+              disabled={disabled || !value.trim()}
+              className="absolute bottom-3 right-3 w-8 h-8 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"
+              title={disabled ? '正在发送...' : '发送消息'}
+            >
+              <img src="/icons/send.svg" alt="发送" className="w-8 h-8" />
+            </button>
+          )}
         </div>
       </div>
     </div>

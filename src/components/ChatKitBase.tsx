@@ -222,6 +222,15 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
   public abstract shouldRefreshToken(status: number, error: any): boolean;
 
   /**
+   * 终止会话 (抽象方法，由子类实现)
+   * 该方法需要由子类继承并重写，以适配扣子、Dify 等 LLMOps 平台的接口。
+   * 注意：该方法是一个无状态无副作用的函数，不允许修改 state。
+   * @param conversationId 要终止的会话 ID
+   * @returns 返回 Promise，成功时 resolve，失败时 reject
+   */
+  public abstract terminateConversation(conversationId: string): Promise<void>;
+
+  /**
    * 向 ChatKit 注入应用上下文
    * @param ctx 要注入的应用上下文
    */
@@ -612,6 +621,41 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
   };
 
   /**
+   * 处理停止流式响应
+   * 调用子类实现的 terminateConversation 方法终止当前会话
+   */
+  private handleStop = async () => {
+    const { conversationID, streamingMessageId } = this.state;
+
+    if (!streamingMessageId) {
+      console.warn('没有正在进行的流式响应');
+      return;
+    }
+
+    console.log('停止流式响应, conversationID:', conversationID);
+
+    try {
+      // 调用子类实现的 terminateConversation 方法
+      await this.terminateConversation(conversationID);
+
+      // 清除流式消息 ID，恢复为正常状态
+      this.setState({
+        streamingMessageId: null,
+        isSending: false,
+      });
+
+      console.log('流式响应已停止');
+    } catch (error) {
+      console.error('停止流式响应失败:', error);
+      // 即使失败，也清除状态，让用户可以重新操作
+      this.setState({
+        streamingMessageId: null,
+        isSending: false,
+      });
+    }
+  };
+
+  /**
    * 更新用户输入
    */
   private setTextInput = (value: string) => {
@@ -631,8 +675,9 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
     }
 
     const { title = 'Copilot', onClose } = this.props;
-    const { messages, textInput, applicationContext, isSending, onboardingInfo, isLoadingOnboarding } = this.state;
+    const { messages, textInput, applicationContext, isSending, onboardingInfo, isLoadingOnboarding, streamingMessageId } = this.state;
     const showPrologue = messages.length === 0;
+    const isStreaming = streamingMessageId !== null;
 
     return (
       <div className="flex flex-col h-full w-full bg-white shadow-2xl">
@@ -675,6 +720,8 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
           context={applicationContext}
           onRemoveContext={this.removeApplicationContext}
           disabled={isSending}
+          isStreaming={isStreaming}
+          onStop={this.handleStop}
         />
       </div>
     );

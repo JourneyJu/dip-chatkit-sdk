@@ -324,6 +324,17 @@ export class ChatKitCoze extends ChatKitBase<ChatKitCozeProps> {
     // 401 Unauthorized 表示 token 失效
     return status === 401;
   }
+
+  /**
+   * 终止会话
+   * Coze 平台目前不支持主动终止会话，此方法为空实现
+   * @param conversationId 要终止的会话 ID
+   * @returns 返回 Promise，直接 resolve
+   */
+  public async terminateConversation(_conversationId: string): Promise<void> {
+    // Coze 平台不支持主动终止会话
+    console.warn('Coze 平台不支持主动终止会话功能');
+  }
 }
 
 export default ChatKitCoze;

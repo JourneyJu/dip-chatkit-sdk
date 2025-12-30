@@ -641,6 +641,40 @@ export class ChatKitDataAgent extends ChatKitBase<ChatKitDataAgentProps> {
     // 401 Unauthorized 表示 token 失效
     return status === 401;
   }
+
+  /**
+   * 终止会话
+   * 调用 Data Agent 的 /app/{agent_id}/chat/termination 接口终止指定会话
+   * @param conversationId 要终止的会话 ID
+   * @returns 返回 Promise，成功时 resolve，失败时 reject
+   */
+  public async terminateConversation(conversationId: string): Promise<void> {
+    const url = `${this.baseUrl}/app/${this.agentId}/chat/termination`;
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // 添加 Authorization header
+    if (this.token) {
+      headers['Authorization'] = this.token.startsWith('Bearer ') ? this.token : `Bearer ${this.token}`;
+    }
+
+    const body = JSON.stringify({
+      conversation_id: conversationId,
+    });
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`终止会话失败: ${response.status} ${errorText}`);
+    }
+  }
 }
 
 export default ChatKitDataAgent;

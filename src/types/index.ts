@@ -227,4 +227,13 @@ export interface ChatKitInterface {
    * @returns 返回是否需要刷新 token
    */
   shouldRefreshToken(status: number, error: any): boolean;
+
+  /**
+   * 终止会话
+   * 该方法需要由子类继承并重写，以适配扣子、Dify 等 LLMOps 平台的接口。
+   * 注意：该方法是一个无状态无副作用的函数，不允许修改 state。
+   * @param conversationId 要终止的会话 ID
+   * @returns 返回 Promise，成功时 resolve，失败时 reject
+   */
+  terminateConversation(conversationId: string): Promise<void>;
 }

@@ -13,6 +13,12 @@ paths:
           description: Agent ID。
           schema:
             type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: 用户或应用账号的 Bearer token。
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -65,3 +71,34 @@ paths:
             text/event-stream:
               itemSchema:
                 $ref: ./agent-app.schemas.yaml#/components/schemas/EventMessage
+  /app/{agent_id}/chat/termination:
+    post:
+      operationId: terminateConversation
+      summary: 终止对话
+      tags:
+        - agent-app
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID。
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          description: 用户或应用账号的 Bearer token。
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversation_id:
+                  type: string
+                  description: 会话 ID
+              required:
+              - conversation_id
