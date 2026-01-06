@@ -32,7 +32,9 @@ export enum BlockType {
   /** Markdown 类型 */
   MARKDOWN = 'Markdown',
   /** Web 搜索类型 */
-  WEB_SEARCH = 'WebSearch'
+  WEB_SEARCH = 'WebSearch',
+  /** 工具调用类型 */
+  TOOL = 'Tool'
 }
 
 /**
@@ -80,6 +82,11 @@ export interface MarkdownBlock extends ContentBlock<BlockType.MARKDOWN, string> 
 export interface WebSearchBlock extends ContentBlock<BlockType.WEB_SEARCH, WebSearchQuery> {}
 
 /**
+ * 工具调用类型的消息块
+ */
+export interface ToolBlock extends ContentBlock<BlockType.TOOL, ToolCallData> {}
+
+/**
  * 消息接口
  * 展示在消息区消息列表中的一条消息
  */
@@ -94,7 +101,7 @@ export interface ChatMessage {
   type?: ChatMessageType;
 
   /** 该条消息的内容。一条消息可以由许多不同类型的消息块组成 */
-  content: Array<TextBlock | MarkdownBlock | WebSearchBlock>;
+  content: Array<TextBlock | MarkdownBlock | WebSearchBlock | ToolBlock>;
 
   /** 与该消息关联的应用上下文（可选），仅用户消息可能包含此字段 */
   applicationContext?: ApplicationContext;
@@ -160,6 +167,34 @@ export interface WebSearchQuery {
   input: string;
   /** Web 搜索结果集合 */
   results: WebSearchResult[];
+}
+
+/**
+ * 代码执行结果接口
+ * 代码执行的输入和输出信息
+ */
+export interface ExecuteCodeResult {
+  /** 执行的代码，以 Markdown 的代码格式显示 */
+  input: string;
+  /** 代码执行后转为自然语言的输出结果，以 Markdown 格式显示 */
+  output: string;
+}
+
+/**
+ * 工具调用数据接口
+ * 工具调用的输入和输出信息
+ */
+export interface ToolCallData {
+  /** 工具名称 */
+  name: string;
+  /** 工具图标 URL 或 React 元素 */
+  icon?: string | React.ReactNode;
+  /** 工具标题 */
+  title: string;
+  /** 工具调用的输入参数 */
+  input?: any;
+  /** 工具调用的输出结果 */
+  output?: any;
 }
 
 /**

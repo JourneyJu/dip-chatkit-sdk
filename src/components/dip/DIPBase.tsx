@@ -624,6 +624,12 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
       if (chartData) {
         (this as any).appendJson2plotBlock(messageId, chartData);
       }
+    } else if (skillName === 'execute_code') {
+      // 代码执行工具：解析代码输入和输出
+      const executeCodeResult = this.extractExecuteCodeResult(skillInfo.args, answer);
+      if (executeCodeResult) {
+        (this as any).appendExecuteCodeBlock(messageId, executeCodeResult);
+      }
     } else {
       // 其他技能：输出技能名称
       (this as any).appendMarkdownBlock(messageId, `调用工具: ${skillName}`);
@@ -732,6 +738,46 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
   }
 
   /**
+   * 从 skill_info.args 和 answer 中提取代码执行结果
+   * 用于处理 execute_code 工具的输入和输出
+   * @param args skill_info.args 数组，包含执行的代码
+   * @param answer 技能执行的 answer 字段，包含执行结果
+   * @returns ExecuteCodeResult 对象，包含 input 和 output
+   */
+  public extractExecuteCodeResult(
+    args: Array<{name?: string; type?: string; value?: string}> | undefined,
+    answer: any
+  ): { input: string; output: string } | null {
+    try {
+      // 从 args 中提取代码输入
+      let codeInput = '';
+      if (args && Array.isArray(args)) {
+        // 查找 name 为 'code' 或 'script' 的参数
+        const codeArg = args.find(arg =>
+          arg.name === 'code' || arg.name === 'script' || arg.type === 'str'
+        );
+        codeInput = codeArg?.value || '';
+      }
+
+      // 从 answer.result.result.stdout 中提取输出
+      const codeOutput = answer?.result?.result?.stdout || '执行完成';
+
+      // 如果没有输入代码，返回 null
+      if (!codeInput) {
+        return null;
+      }
+
+      return {
+        input: codeInput,
+        output: codeOutput,
+      };
+    } catch (e) {
+      console.error('提取代码执行结果失败:', e);
+      return null;
+    }
+  }
+
+  /**
    * 将技能调用或 LLM 回答的内容追加到消息中
    * 用于历史消息解析，根据 stage 和 skill_info 将内容添加到 ChatMessage.content 数组
    * @param item Progress 或 OtherTypeAnswer 对象
@@ -762,6 +808,20 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
           message.content.push({
             type: BlockType.TEXT,
             content: `图表数据: ${JSON.stringify(chartData, null, 2)}`,
+          });
+        }
+      } else if (skillName === 'execute_code') {
+        // 代码执行工具
+        const executeCodeResult = this.extractExecuteCodeResult(item.skill_info?.args, item.answer);
+        if (executeCodeResult) {
+          message.content.push({
+            type: BlockType.TOOL,
+            content: {
+              name: 'execute_code',
+              title: '代码执行',
+              input: executeCodeResult.input,
+              output: executeCodeResult.output,
+            },
           });
         }
       } else {

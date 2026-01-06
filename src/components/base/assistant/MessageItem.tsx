@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChatMessage, RoleType, BlockType } from '../../../types';
-import { TextBlock, MarkdownBlock, WebSearchBlock } from './blocks';
+import { TextBlock, MarkdownBlock, WebSearchBlock, ToolBlock } from './blocks';
 
 /**
  * MessageItem 组件的属性接口
@@ -34,6 +34,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
                 return <MarkdownBlock key={index} block={block} />;
               case BlockType.WEB_SEARCH:
                 return <WebSearchBlock key={index} block={block} />;
+              case BlockType.TOOL:
+                return <ToolBlock key={index} block={block} />;
               default:
                 return null;
             }

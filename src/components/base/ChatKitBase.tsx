@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { ChatMessage, RoleType, ApplicationContext, ChatKitInterface, EventStreamMessage, OnboardingInfo, WebSearchQuery, BlockType, MarkdownBlock, WebSearchBlock } from '../../types';
+import { ChatMessage, RoleType, ApplicationContext, ChatKitInterface, EventStreamMessage, OnboardingInfo, WebSearchQuery, ExecuteCodeResult, BlockType, MarkdownBlock, WebSearchBlock, ToolBlock } from '../../types';
 
 /**
  * ChatKitBase 组件的属性接口
@@ -193,7 +193,10 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
   /**
    * 将 API 接口返回的 EventStream 增量解析成完整的 AssistantMessage 对象 (抽象方法，由子类实现)
    * 当接收到 SSE 消息时触发，该方法需要由子类实现
-   * 子类在该方法中应该调用 appendMarkdownBlock() 或 appendWebSearchBlock() 来更新消息内容
+   * 子类在该方法中应该调用以下方法来更新消息内容：
+   * - appendMarkdownBlock(): 添加 Markdown 文本块
+   * - appendWebSearchBlock(): 添加 Web 搜索结果块
+   * - appendExecuteCodeBlock(): 添加代码执行结果块
    * 注意：该方法应该只处理数据解析逻辑，通过调用 append*Block 方法来更新界面
    * @param eventMessage 接收到的一条 Event Message
    * @param prev 上一次增量更新后的 AssistantMessage 对象
@@ -334,6 +337,39 @@ export abstract class ChatKitBase<P extends ChatKitBaseProps = ChatKitBaseProps>
               type: BlockType.WEB_SEARCH,
               content: query,
             } as WebSearchBlock,
+          ];
+
+          return { ...msg, content: newContent };
+        }
+        return msg;
+      });
+
+      return { messages: newMessages };
+    });
+  }
+
+  /**
+   * 添加代码执行工具类型的消息块
+   * 该方法由子类调用，用于在消息中添加代码执行结果
+   * @param messageId 消息 ID
+   * @param result 代码执行的输入和输出结果
+   */
+  protected appendExecuteCodeBlock(messageId: string, result: ExecuteCodeResult): void {
+    this.setState((prevState) => {
+      const newMessages = prevState.messages.map((msg) => {
+        if (msg.messageId === messageId) {
+          // 添加代码执行工具块
+          const newContent = [
+            ...msg.content,
+            {
+              type: BlockType.TOOL,
+              content: {
+                name: 'execute_code',
+                title: '代码执行',
+                input: result.input,
+                output: result.output,
+              },
+            } as ToolBlock,
           ];
 
           return { ...msg, content: newContent };

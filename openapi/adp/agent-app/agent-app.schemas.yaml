@@ -159,8 +159,8 @@ components:
               - assign: 变量赋值
           enum: [llm, skill, assign]
         answer:
-          type: object
-          description: 其他类型内容的具体数据
+          oneOf:
+            - $ref: '#/components/schemas/ExecuteCodeResult'
         skill_info:
           $ref: "#/components/schemas/SkillInfo"
     
@@ -281,6 +281,28 @@ components:
                 type: string
                 description: 搜索结果的内容摘要
     
+    ExecuteCodeResult:
+      type: object
+      description: 代码执行工具的返回结果
+      properties:
+        result:
+          type: object
+          properties:
+            title:
+              type: string
+              description: 代码执行结果标题
+            action:
+              type: string
+              description: 工具名称
+              enum: [execute_code]
+            result:
+              type: object
+              description: 工具执行结果
+              properties:
+                stdout:
+                  type: string
+                  description: 代码执行后转为自然语言的输出结果
+
     SkillInfo:
       type: object
       desciption: 调用技能的技能详情
