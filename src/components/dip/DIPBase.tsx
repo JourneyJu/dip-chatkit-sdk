@@ -22,13 +22,6 @@ interface AssistantMessage {
     conversation_id?: string;
     role?: string;
     content?: {
-      final_answer?: {
-        thinking?: string;
-        answer?: {
-          text?: string;
-        };
-        answer_type_other?: OtherTypeAnswer;
-      };
       middle_answer?: {
         progress?: Progress[];
       };
@@ -485,8 +478,8 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
 
   /**
    * 将 key 数组转换为 JSONPath 字符串
-   * 例如: ["message", "content", "final_answer", "answer", "text"]
-   * => "message.content.final_answer.answer.text"
+   * 例如: ["message", "content", "middle_answer", "progress", 0]
+   * => "message.content.middle_answer.progress[0]"
    */
   public keyToJSONPath(key: Array<string | number>): string {
     return key.map((k, index) => {
@@ -514,20 +507,6 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
     } = {
       'upsert:error': {},
       'upsert:message': {},
-      // 'append:message.content.final_answer.answer.text': {
-      //   postProcess: (assistantMessage, _content, messageId) => {
-      //     // 从 AssistantMessage 中提取完整的文本内容
-      //     const text = assistantMessage.message?.content?.final_answer?.answer?.text || '';
-      //     // 调用 appendMarkdownBlock 方法更新界面上的 Markdown 块
-      //     (this as any).appendMarkdownBlock(messageId, text);
-      //   },
-      // },
-      // 'upsert:message.content.final_answer.answer_type_other': {
-      //   postProcess: (_assistantMessage, content, messageId) => {
-      //     // content 是一个 OtherTypeAnswer 对象
-      //     this.processFinalAnswerTypeOther(content, messageId);
-      //   },
-      // },
       'append:message.content.middle_answer.progress': {
         postProcess: (_assistantMessage, content, messageId) => {
           // content 是一个 Progress 对象
@@ -891,17 +870,6 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
     }
   }
 
-  /**
-   * 处理 final_answer.answer_type_other
-   * 根据设计文档 3.2 Event Message 白名单中的后处理逻辑
-   * @param content OtherTypeAnswer 对象
-   * @param messageId 消息 ID
-   */
-  public processFinalAnswerTypeOther(content: OtherTypeAnswer, messageId: string): void {
-    if (content?.stage === 'skill') {
-      this.processSkillExecution(content.skill_info, content.answer, messageId);
-    }
-  }
 
   /**
    * 处理 middle_answer.progress 中的一个元素
@@ -921,7 +889,7 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
 
   /**
    * 从 answer.choices 中提取 Web 搜索查询
-   * 用于处理 final_answer.answer_type_other 和 middle_answer.progress 中的搜索结果
+   * 用于处理 middle_answer.progress 中的搜索结果
    */
   public extractWebSearchQueryFromAnswer(answer: any): WebSearchQuery | null {
     try {
@@ -1663,30 +1631,12 @@ export function DIPBaseMixin<TBase extends Constructor>(Base: TBase) {
                 content: [],
               };
 
-              // 2. 先处理 middle_answer.progress 数组
+              // 2. 处理 middle_answer.progress 数组
               const middleAnswer = contentObj?.middle_answer;
               if (middleAnswer?.progress && Array.isArray(middleAnswer.progress)) {
                 for (const progressItem of middleAnswer.progress) {
                   this.appendSkillOrLLMContentToMessage(progressItem, aiMessage);
                 }
-              }
-
-              // 3. 处理 final_answer
-              const finalAnswer = contentObj?.final_answer;
-
-              // 3.1 处理 final_answer.answer.text
-              const finalAnswerText = finalAnswer?.answer?.text;
-              if (finalAnswerText) {
-                aiMessage.content.push({
-                  type: BlockType.MARKDOWN,
-                  content: finalAnswerText,
-                });
-              }
-
-              // 3.2 处理 final_answer.answer_type_other
-              const answerTypeOther = finalAnswer?.answer_type_other;
-              if (answerTypeOther) {
-                this.appendSkillOrLLMContentToMessage(answerTypeOther, aiMessage);
               }
 
               chatMessages.push(aiMessage);

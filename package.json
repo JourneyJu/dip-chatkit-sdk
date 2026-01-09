@@ -24,7 +24,8 @@
     "build": "npm run build:lib && npm run build:types",
     "build:lib": "vite build --config vite.config.lib.ts",
     "build:types": "tsc --project tsconfig.lib.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "npm run build"
   },
   "keywords": [
     "chat",

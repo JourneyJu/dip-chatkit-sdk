@@ -211,7 +211,7 @@ export const formatSql = (sql: string): string => {
 ### 6.1 基础使用
 
 ```typescript
-import { CodeViewTool } from '@dip/chatkit';
+import { CodeViewTool } from '@kweaver-ai/chatkit';
 
 const pythonCode = `def hello_world():
     print("Hello, World!")
@@ -241,7 +241,7 @@ const sqlQuery = `SELECT u.id,u.name,o.order_id,o.total_amount FROM users u JOIN
 ### 6.3 在 ToolDrawer 中使用
 
 ```typescript
-import { CodeViewTool } from '@dip/chatkit';
+import { CodeViewTool } from '@kweaver-ai/chatkit';
 
 // 在 ToolDrawer 组件中使用
 const renderCodeInput = (code: string): React.ReactNode => {

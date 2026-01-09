@@ -418,8 +418,8 @@ export interface Measure {
 ### 6.1 基础使用
 
 ```typescript
-import { Json2PlotBlock } from '@dip/chatkit';
-import type { ChartDataSchema } from '@dip/chatkit';
+import { Json2PlotBlock } from '@kweaver-ai/chatkit';
+import type { ChartDataSchema } from '@kweaver-ai/chatkit';
 
 const chartData: ChartDataSchema = {
   chartType: 'Line',
@@ -472,7 +472,7 @@ const pieData: ChartDataSchema = {
 
 ```typescript
 // 单独使用 EChartsView
-import { EChartsView } from '@dip/chatkit';
+import { EChartsView } from '@kweaver-ai/chatkit';
 
 <EChartsView
   data={chartData}
@@ -484,7 +484,7 @@ import { EChartsView } from '@dip/chatkit';
 />
 
 // 单独使用 TableView
-import { TableView } from '@dip/chatkit';
+import { TableView } from '@kweaver-ai/chatkit';
 
 <TableView
   data={chartData}

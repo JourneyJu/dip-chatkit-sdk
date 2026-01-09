@@ -109,7 +109,7 @@ npm run build
 
 ```tsx
 import React, { useRef } from 'react';
-import { ChatKitCoze } from '@dip/chatkit';
+import { ChatKitCoze } from '@kweaver-ai/chatkit';
 
 function App() {
   const chatKitRef = useRef<ChatKitCoze>(null);
@@ -156,7 +156,7 @@ function App() {
 
 ```tsx
 import React, { useRef, useState } from 'react';
-import { Copilot, type ApplicationContext } from '@dip/chatkit';
+import { Copilot, type ApplicationContext } from '@kweaver-ai/chatkit';
 
 function App() {
   const [showChat, setShowChat] = useState(false);
@@ -221,7 +221,7 @@ function App() {
 
 ```tsx
 import React, { useRef } from 'react';
-import { Assistant, type ConversationHistory } from '@dip/chatkit';
+import { Assistant, type ConversationHistory } from '@kweaver-ai/chatkit';
 
 function App() {
   const chatKitRef = useRef<Assistant>(null);

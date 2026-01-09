@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Assistant, type AssistantProps } from '@dip/chatkit';
+import { Assistant, type AssistantProps } from '@kweaver-ai/chatkit';
 import { DATA_AGENT_CONFIG } from './config';
 
 /**

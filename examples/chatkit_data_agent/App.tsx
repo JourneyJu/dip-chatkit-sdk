@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Copilot, type ApplicationContext } from '@dip/chatkit';
+import { Copilot, type ApplicationContext } from '@kweaver-ai/chatkit';
 import { DATA_AGENT_CONFIG } from './config';
 
 /**

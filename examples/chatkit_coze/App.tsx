@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ChatKitCoze, ApplicationContext } from '@dip/chatkit';
+import { ChatKitCoze, ApplicationContext } from '@kweaver-ai/chatkit';
 import { COZE_CONFIG } from './config';
 
 /**
