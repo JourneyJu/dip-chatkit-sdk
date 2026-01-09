@@ -1,4 +1,5 @@
 # ChatKit
+ChatKit 是 KWeaver 生态的一部分。如果您喜欢这个项目，欢迎也给 **[KWeaver](https://github.com/kweaver-ai/kweaver)** 项目点个 ⭐！
 
 ChatKit 是一个 AI 对话组件。Web 应用开发者可以将 ChatKit 集成到自己的前端代码中，并通过传入与用户输入有关的上下文对象，实现对 Web 应用中有关的信息发起 AI 对话。
 
