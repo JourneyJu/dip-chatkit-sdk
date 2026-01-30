@@ -291,9 +291,9 @@ ChatKitBase 是 AI 对话组件的核心基类。开发者不能直接挂载 Cha
 
 | 方法名 | 参数 | 返回值 | 说明 |
 |--------|------|--------|------|
-| createConversation | `()` | `Promise<void>` | 创建新的会话，清除现有消息 |
+| createConversation | `()` | `Promise<void>` | 清空现有会话并获取开场白信息 |
 | loadConversation | `(conversationId: string)` | `Promise<void>` | 加载指定 ID 的历史会话 |
-| send | `(text: string, ctx?: ApplicationContext, conversationID?: string)` | `Promise<ChatMessage>` | 发送消息，支持传入上下文和会话ID |
+| send | `(text: string, ctx?: ApplicationContext, conversationID?: string, regenerateMessageId?: string)` | `Promise<ChatMessage>` | 发送消息，支持传入上下文、会话 ID 和重新生成的消息 ID |
 | injectApplicationContext | `(ctx: ApplicationContext)` | `void` | 向 ChatKit 注入应用上下文 |
 | removeApplicationContext | `()` | `void` | 移除注入的应用上下文 |
 | getConversations | `(page?: number, size?: number)` | `Promise<ConversationHistory[]>` | 获取历史会话列表 |
